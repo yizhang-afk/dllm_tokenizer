@@ -104,12 +104,17 @@ python scripts/train_tokenizer.py \
   --output output \
   --vocab-size 50000
 ```
+
+**注意**: 对于小测试数据，需要使用较大的 vocab_size（如 500+），因为 ByteLevel 初始 alphabet 就有 256 个字节。
+
 ```bash
+# 使用示例数据测试
 python scripts/train_tokenizer.py \
   --input data/samples/example.txt \
   --output output \
-  --vocab-size 100
+  --vocab-size 500
 ```
+
 #### 大规模训练（>10GB 数据）
 
 使用迭代器模式以节省内存：
@@ -178,15 +183,16 @@ python scripts/test_tokenizer.py \
 
 | Token | 用途 |
 |-------|------|
-| `<pad>` | Padding token |
-| `<eos>` | End of sequence |
-| `<bos>` | Beginning of sequence |
+| `<\|endoftext\|>` | End/Beginning/Padding token（GPT 风格，同时用作 pad/bos/eos） |
 | `<unk>` | Unknown token |
-| `<indent>` | 缩进标记（Python 专用） |
 | `<\|fim_prefix\|>` | Fill-in-the-middle 前缀 |
 | `<\|fim_middle\|>` | Fill-in-the-middle 中间 |
 | `<\|fim_suffix\|>` | Fill-in-the-middle 后缀 |
 | `<\|fim_pad\|>` | Fill-in-the-middle padding |
+
+**重要说明**：
+- 特殊 tokens 的 ID 位于词汇表末尾
+- `<|endoftext|>` 同时用作 `pad_token`、`bos_token` 和 `eos_token`（类似 GPT-2）
 
 ## 输出文件说明
 
@@ -202,18 +208,20 @@ python scripts/test_tokenizer.py \
 
 ### 2. `tokenizer_config.json`
 Tokenizer 配置文件，包含：
+- `add_bos_token`: false（不自动添加 BOS token）
 - `add_prefix_space`: 是否添加前缀空格
 - `added_tokens_decoder`: 添加的 token 解码器
-- `bos_token`, `eos_token`, `pad_token`, `unk_token`: 特殊 token
-- `clean_up_tokenization_spaces`: 是否清理空格
-- `tokenizer_class`: Tokenizer 类名
+- `bos_token`, `eos_token`, `pad_token`: 均为 `<|endoftext|>`
+- `unk_token`: `<unk>`
+- `clean_up_tokenization_spaces`: false（保持原始格式）
+- `tokenizer_class`: PreTrainedTokenizerFast
 
 **注意**: 此文件不包含 `model_type`。
 
 ### 3. `special_tokens_map.json`
 特殊 token 映射，包含：
-- 基础特殊 tokens（bos, eos, pad, unk）
-- 额外特殊 tokens（indent, FIM tokens）
+- 基础特殊 tokens：`<|endoftext|>`（用作 bos/eos/pad）、`<unk>`
+- 额外特殊 tokens：FIM tokens（`<|fim_prefix|>`, `<|fim_middle|>`, `<|fim_suffix|>`, `<|fim_pad|>`）
 
 ### 4. `vocab.json`
 词汇表文件，JSON 格式，映射 token 到 ID。
