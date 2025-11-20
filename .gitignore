@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 训练输出
+output/
+output_*/
+
+# JSON 输出（但保留 package.json 等配置）
+output/**/*.json
+data/**/*.json
+
+# 训练数据文本文件
+data/raw/**/*.txt
+data/processed/**/*.txt
+!data/samples/example.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
